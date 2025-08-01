@@ -1,31 +1,50 @@
----
-name: hello world workflow
+# ---
+# name: hello world workflow
+# on:
+#   push:
+#     branches:
+#       - main
+# jobs:
+#   say_hello:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: print hello world
+#         run: echo "hello world"
+
+
+name: deploy to vercel
+
 on:
   push:
     branches:
       - main
+
 jobs:
-  say_hello:
+  build_and_deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: print hello world
-        run: echo "hello world"
+      - name: Checkout code
+        uses: actions/checkout@v2
 
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '22'
 
+      - name: Install dependencies
+        run: npm install
 
-# name: deploy to vercel
-# on:
-#   push:
-#       branches:
-#         -main
+      - name: Build
+        run: npm run build
 
-# jobs:
-#   build_and_deploy: 
-#     runs-on: ubuntu_latest
-#     steps:
-#     - uses: action/checkout@v2 
-#     - name : install dependencies
-#       run : npm install
-
-#     - name: build
-#     - run: npm run build 
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel_token: ${{ secrets.VERCEL_TOKEN }}         # Required
+          github_token: ${{ secrets.GITHUB_TOKEN }}         # Optional
+          vercel-args: '--prod'                             # Optional
+          vercel_org_id: ${{ secrets.ORG_ID }}              # Required
+          vercel_project_id: ${{ secrets.PROJECT_ID }}      # Required
+          alias-domain: domain.com                          # Optional
+          working-directory: ./                             # Optional
